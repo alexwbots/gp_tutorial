@@ -1,12 +1,12 @@
-#include <free_global_planner_v2/free_planner.h>
+#include <free_global_planner_v3/free_planner.h>
 #include <pluginlib/class_list_macros.h>
 #include <costmap_2d/cost_values.h>
 #include <costmap_2d/costmap_2d.h>
 
 //register this planner as a BaseGlobalPlanner plugin
-PLUGINLIB_EXPORT_CLASS(free_global_planner_v2::GlobalPlanner, nav_core::BaseGlobalPlanner)
+PLUGINLIB_EXPORT_CLASS(free_global_planner_v3::GlobalPlanner, nav_core::BaseGlobalPlanner)
 
-namespace free_global_planner_v2 {
+namespace free_global_planner_v3 {
 
 
   GlobalPlanner::GlobalPlanner() :
@@ -16,6 +16,7 @@ namespace free_global_planner_v2 {
 
   GlobalPlanner::GlobalPlanner(std::string name, costmap_2d::Costmap2D* costmap, std::string frame_id) :
     costmap_(NULL), initialized_(false) {
+
       initialize(name, costmap, frame_id);
   }
 
@@ -35,8 +36,8 @@ namespace free_global_planner_v2 {
     
       ros::NodeHandle private_nh("~/" + name);
 
-      printf("[Initialized] name: %s\n", name.c_str());		// name: GlobalPlanner
-      printf("[Initialized] frame_id: %s\n", frame_id.c_str());	// frame_id: map
+      printf("[Initialized] name: %s\n", name.c_str());
+      printf("[Initialized] frame_id: %s\n", frame_id.c_str());
 
       costmap_ = costmap;    // Temporal copy for the costmap
       frame_id_ = frame_id;
@@ -47,19 +48,14 @@ namespace free_global_planner_v2 {
 
       plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan", 1);
 
-      // The information about costmap class could be found in this link
-      // http://docs.ros.org/en/noetic/api/costmap_2d/html/classcostmap__2d_1_1Costmap2D.html
-      printf("Width of the map in cells is: %d\n", costmap_->getSizeInCellsX());		// Width: 384
-      printf("Height of the map in cells is: %d\n", costmap_->getSizeInCellsY());		// Height: 384
-      printf("The size of the cells in meters X is: %f\n", costmap_->getSizeInMetersX());	// CellX in meter: 19.175
-      printf("The size of the cells in meters Y is: %f\n", costmap_->getSizeInMetersY());	// CellY in meter: 19.175
-      
-      // The information about costmap namespace variables could be found in this link
-      // http://docs.ros.org/en/noetic/api/costmap_2d/html/namespacecostmap__2d.html
-      printf("The Free Space value: %d\n", costmap_2d::FREE_SPACE);				// FREE_SPACE: 0
-      printf("The Lethal Space cost: %d\n",costmap_2d::LETHAL_OBSTACLE);			// LETHAL_OBSTACLE: 254
-      printf("The Inscribed Inflated Obstacle cost: %d\n",costmap_2d::INSCRIBED_INFLATED_OBSTACLE);	// INSCRIBED_INFLATED_OBSTACLE: 253
-      printf("The no Information cost: %d\n",costmap_2d::NO_INFORMATION);			// NO_INFORMATION: 255
+      printf("Width of the map in cells is: %d\n", costmap_->getSizeInCellsX());
+      printf("Height of the map in cells is: %d\n", costmap_->getSizeInCellsY());
+      printf("The size of the cells in meters X is: %f\n", costmap_->getSizeInMetersX());
+      printf("The size of the cells in meters Y is: %f\n", costmap_->getSizeInMetersY());
+      printf("The Free Space value: %d\n", costmap_2d::FREE_SPACE);
+      printf("The Lethal Space cost: %d\n",costmap_2d::LETHAL_OBSTACLE);
+      printf("The Inscribed Inflated Obstacle cost: %d\n",costmap_2d::INSCRIBED_INFLATED_OBSTACLE);
+      printf("The no Information cost: %d\n",costmap_2d::NO_INFORMATION);
 
     } else { 
     
@@ -74,6 +70,7 @@ namespace free_global_planner_v2 {
 
   bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
                                std::vector<geometry_msgs::PoseStamped>& plan) {
+
     return makePlan(start, goal, default_tolerance_, plan);
   }
 
@@ -121,16 +118,16 @@ namespace free_global_planner_v2 {
 
       geometry_msgs::PoseStamped goal_ = goal;
       goal_.header.stamp = ros::Time::now();    // The goal we push on has the same timestamp as the rest of the plan
-      plan.push_back(goal_);
+      plan.push_back(goal_);    // Add the goal to the planning path
 
     } else {
       ROS_ERROR("Failed to get a plan!");
     }
 
-    publishPlan(plan);		// Publish in the topic "plan"
+    publishPlan(plan);
     print_data_ = false;
 
-    return false;
+    return true;
   }
 
 
@@ -140,13 +137,18 @@ namespace free_global_planner_v2 {
     std::vector<std::pair<float, float>> path;
     ros::Time plan_time = ros::Time::now();
 
-    // Find the path, it actualize every time
-    printf("[algorithm] Path size : %lu\n", path.size());
-    std::pair<float, float> current;
-    current.first = 160;
-    current.second = 190;
-    path.push_back(current);
+    /**********     Start finding the path, it actualize every time     **********/ 
     
+    std::pair<float, float> current;
+    current.first = 160; current.second = 190; path.push_back(current);
+    current.first = 170; current.second = 190; path.push_back(current);
+    current.first = 180; current.second = 190; path.push_back(current);
+    current.first = start_x; current.second = start_y; path.push_back(current);    
+
+    /**********     End of the find path     **********/
+
+    printf("[algorithm] Path size : %lu\n", path.size());
+
     plan.clear();    //clear the plan, just in case
 
     for (int i = path.size() -1; i>=0; i--) {
@@ -155,7 +157,7 @@ namespace free_global_planner_v2 {
 
         double world_x, world_y;     //convert the plan to world coordinates
         mapToWorld(point.first, point.second, world_x, world_y);
-        printf("[algorithm] Point number %i : x = %f , y = %f\n", i, point.first, point.second);
+        printf("[algorithm] Point number %i : world_x = %f , world_y = %f\n", i, world_x, world_y);
 
         geometry_msgs::PoseStamped pose;
         pose.header.stamp = plan_time;
@@ -228,4 +230,6 @@ namespace free_global_planner_v2 {
     wx = costmap_->getOriginX() + (mx+convert_offset_) * costmap_->getResolution();
     wy = costmap_->getOriginY() + (my+convert_offset_) * costmap_->getResolution();
   }
+
+
 }

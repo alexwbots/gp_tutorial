@@ -175,8 +175,8 @@ namespace free_global_planner_v1 {
       return false;
     }
 
-    mx = (wx - origin_x) / resolution - convert_offset_;	// mx = (-2.0-(-10.0))/0.05
-    my = (wy - origin_y) / resolution - convert_offset_;	// my = (-0.5-(-10.0))/0.05
+    mx = (wx - origin_x) / resolution - convert_offset_;	// mx = (-2.0-(-10.0))/0.05 = 160
+    my = (wy - origin_y) / resolution - convert_offset_;	// my = (-0.5-(-10.0))/0.05 = 190
 
     if (mx < costmap_->getSizeInCellsX() && my < costmap_->getSizeInCellsY()) {
       return true;
