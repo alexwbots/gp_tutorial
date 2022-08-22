@@ -112,7 +112,7 @@ namespace free_global_planner_v1 {
 
       geometry_msgs::PoseStamped goal_ = goal;
       goal_.header.stamp = ros::Time::now();    // The goal we push on has the same timestamp as the rest of the plan
-      plan.push_back(goal_);			  // The plan comes empty plan: ???
+      plan.push_back(goal_);			  // The plan comes empty plan
 
     } else {
       ROS_ERROR("Failed to get a plan!");
@@ -128,31 +128,6 @@ namespace free_global_planner_v1 {
   bool GlobalPlanner::algorithm(double start_x, double start_y, double goal_x, double goal_y, const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& path) {
     
     return true;
-  }
-
-
-  bool GlobalPlanner::worldToMap(double wx, double wy, double& mx, double& my) {
-   
-    double origin_x = costmap_->getOriginX(), origin_y = costmap_->getOriginY();
-    double resolution = costmap_->getResolution();
-
-    if(print_data_) {
-      printf("[worldToMap] Get resolution: %f\n", resolution);	// Resolution: 0.05 meters/pixel
-      printf("[worldToMap] Get X origin: %f and Get Y origin: %f \n", origin_x, origin_x);	
-    }									// X origin: -10 & Y origin:-10
-
-    if (wx < origin_x || wy < origin_y) {
-      return false;
-    }
-
-    mx = (wx - origin_x) / resolution - convert_offset_;	// mx = (-2.0-(-10.0))/0.05
-    my = (wy - origin_y) / resolution - convert_offset_;	// my = (-0.5-(-10.0))/0.05
-
-    if (mx < costmap_->getSizeInCellsX() && my < costmap_->getSizeInCellsY()) {
-      return true;
-    }
-
-    return false;
   }
 
 
@@ -184,3 +159,29 @@ namespace free_global_planner_v1 {
   }
 
 }
+
+
+  bool GlobalPlanner::worldToMap(double wx, double wy, double& mx, double& my) {
+   
+    double origin_x = costmap_->getOriginX(), origin_y = costmap_->getOriginY();
+    double resolution = costmap_->getResolution();
+
+    if(print_data_) {
+      printf("[worldToMap] Get resolution: %f\n", resolution);	// Resolution: 0.05 meters/pixel
+      printf("[worldToMap] Get X origin: %f and Get Y origin: %f \n", origin_x, origin_x);	
+    }									// X origin: -10 & Y origin:-10
+
+    if (wx < origin_x || wy < origin_y) {
+      return false;
+    }
+
+    mx = (wx - origin_x) / resolution - convert_offset_;	// mx = (-2.0-(-10.0))/0.05
+    my = (wy - origin_y) / resolution - convert_offset_;	// my = (-0.5-(-10.0))/0.05
+
+    if (mx < costmap_->getSizeInCellsX() && my < costmap_->getSizeInCellsY()) {
+      return true;
+    }
+
+    return false;
+  }
+

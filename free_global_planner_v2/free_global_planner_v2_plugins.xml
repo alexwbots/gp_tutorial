@@ -1,0 +1,5 @@
+<library path="lib/libfree_global_planner_v2_lib">
+  <class name="free_global_planner_v2/GlobalPlanner" type="free_global_planner_v2::GlobalPlanner" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>This base free global planner v2 plugin.</description>
+  </class>
+</library>
