@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>tb3_nav_tutorial</name>
+  <version>1.0.0</version>
+  <description>The tb3_nav_tutorial package</description>
+
+  <maintainer email="lopez.alexander@pucp.edu.pe">Alexander López</maintainer>
+  <license>MIT</license>
+  <url type="website">https://sites.google.com/view/alexwbots</url>
+  <author email="lopez.alexander@pucp.edu.pe">Alexander López</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>amcl</exec_depend>
+  <exec_depend>map_server</exec_depend>
+  <exec_depend>move_base</exec_depend>
+  <exec_depend>turtlebot3_bringup</exec_depend>
+
+</package>
