@@ -158,8 +158,6 @@ namespace free_global_planner_v1 {
     plan_pub_.publish(gui_path);	// Publish in the plan topic
   }
 
-}
-
 
   bool GlobalPlanner::worldToMap(double wx, double wy, double& mx, double& my) {
    
@@ -184,4 +182,6 @@ namespace free_global_planner_v1 {
 
     return false;
   }
+
+}
 
